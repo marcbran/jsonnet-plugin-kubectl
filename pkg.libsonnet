@@ -5,7 +5,7 @@ p.pkg({
   repo: 'https://github.com/marcbran/jsonnet.git',
   branch: 'kubectl',
   path: 'kubectl',
-  target: 'k',
+  target: 'kubectl',
 }, |||
   Read-only access to Kubernetes resources via client-go, similar to `kubectl get`.
   Requires a valid kubeconfig and cluster reachability when the plugin runs.
