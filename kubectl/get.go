@@ -229,12 +229,21 @@ func statusToMap(st *metav1.Status) (map[string]any, error) {
 }
 
 func clientFailureStatus(code int32, msg string) map[string]any {
+	var reason metav1.StatusReason
+	switch code {
+	case 400:
+		reason = metav1.StatusReasonBadRequest
+	case 404:
+		reason = metav1.StatusReasonNotFound
+	default:
+		reason = metav1.StatusReasonInternalError
+	}
 	return map[string]any{
 		"apiVersion": "v1",
 		"kind":       "Status",
 		"status":     "Failure",
 		"code":       float64(code),
 		"message":    msg,
-		"reason":     "BadRequest",
+		"reason":     string(reason),
 	}
 }
