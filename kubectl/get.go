@@ -149,6 +149,10 @@ func runGet(ctx context.Context, opts map[string]any, resource string, name *str
 	if err != nil {
 		return clientFailureStatus(404, err.Error()), nil
 	}
+	allNamespaces, _ := opts["allNamespaces"].(bool)
+	if allNamespaces {
+		ns = ""
+	}
 	var ri dynamic.ResourceInterface
 	if mapping.Scope.Name() == meta.RESTScopeNameNamespace {
 		ri = dyn.Resource(gvr).Namespace(ns)

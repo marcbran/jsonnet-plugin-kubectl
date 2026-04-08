@@ -40,6 +40,16 @@ func TestParseGetInput(t *testing.T) {
 			wantName: strPtr("p1"),
 		},
 		{
+			name:  "list with allNamespaces",
+			input: []any{map[string]any{"context": "prod", "allNamespaces": true}, "deployments", nil},
+			wantOpts: map[string]any{
+				"context":       "prod",
+				"allNamespaces": true,
+			},
+			wantRes:  "deployments",
+			wantName: nil,
+		},
+		{
 			name:      "wrong arity",
 			input:     []any{map[string]any{}, "pods"},
 			wantError: "expected options, resource, and name",
