@@ -10,34 +10,63 @@ func TestParseGetInput(t *testing.T) {
 	tests := []struct {
 		name      string
 		input     []any
-		wantOpts  map[string]any
-		wantRes   string
-		wantName  *string
+		want      GetInput
 		wantError string
 	}{
 		{
-			name:     "list with empty options",
-			input:    []any{map[string]any{}, "pods", nil},
-			wantOpts: map[string]any{},
-			wantRes:  "pods",
-			wantName: nil,
+			name:  "list with empty options",
+			input: []any{map[string]any{}, "pods", nil},
+			want:  GetInput{Opts: GetOptions{}, Res: "pods", Name: nil},
 		},
 		{
-			name:     "list with null options",
-			input:    []any{nil, "pods", nil},
-			wantOpts: map[string]any{},
-			wantRes:  "pods",
-			wantName: nil,
+			name:  "list with null options",
+			input: []any{nil, "pods", nil},
+			want:  GetInput{Opts: GetOptions{}, Res: "pods", Name: nil},
 		},
 		{
 			name:  "get with context and namespace",
 			input: []any{map[string]any{"context": "prod", "namespace": "ns1"}, "pods", "p1"},
-			wantOpts: map[string]any{
-				"context":   "prod",
-				"namespace": "ns1",
+			want: GetInput{
+				Opts: GetOptions{Context: "prod", Namespace: "ns1"},
+				Res:  "pods",
+				Name: strPtr("p1"),
 			},
-			wantRes:  "pods",
-			wantName: strPtr("p1"),
+		},
+		{
+			name:  "list with allNamespaces",
+			input: []any{map[string]any{"context": "prod", "allNamespaces": true}, "deployments", nil},
+			want: GetInput{
+				Opts: GetOptions{Context: "prod", AllNamespaces: true},
+				Res:  "deployments",
+				Name: nil,
+			},
+		},
+		{
+			name:  "list with labelSelector",
+			input: []any{map[string]any{"labelSelector": "app=foo,env=prod"}, "pods", nil},
+			want: GetInput{
+				Opts: GetOptions{LabelSelector: "app=foo,env=prod"},
+				Res:  "pods",
+				Name: nil,
+			},
+		},
+		{
+			name:  "list with fieldSelector",
+			input: []any{map[string]any{"fieldSelector": "status.phase=Running"}, "pods", nil},
+			want: GetInput{
+				Opts: GetOptions{FieldSelector: "status.phase=Running"},
+				Res:  "pods",
+				Name: nil,
+			},
+		},
+		{
+			name:  "list with kubeconfig",
+			input: []any{map[string]any{"kubeconfig": "/home/user/.kube/config"}, "pods", nil},
+			want: GetInput{
+				Opts: GetOptions{Kubeconfig: "/home/user/.kube/config"},
+				Res:  "pods",
+				Name: nil,
+			},
 		},
 		{
 			name:      "wrong arity",
@@ -72,21 +101,21 @@ func TestParseGetInput(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			opts, res, name, err := parseGetInput(tt.input)
+			gi, err := parseGetInput(tt.input)
 			if tt.wantError != "" {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tt.wantError)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, tt.wantOpts, opts)
-			require.Equal(t, tt.wantRes, res)
-			if tt.wantName == nil {
-				require.Nil(t, name)
+			require.Equal(t, tt.want.Opts, gi.Opts)
+			require.Equal(t, tt.want.Res, gi.Res)
+			if tt.want.Name == nil {
+				require.Nil(t, gi.Name)
 				return
 			}
-			require.NotNil(t, name)
-			require.Equal(t, *tt.wantName, *name)
+			require.NotNil(t, gi.Name)
+			require.Equal(t, *tt.want.Name, *gi.Name)
 		})
 	}
 }
