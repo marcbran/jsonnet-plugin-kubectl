@@ -1,3 +1,5 @@
+//go:build e2e
+
 package tests
 
 import (
@@ -73,10 +75,72 @@ users:
 	return s
 }
 
+func (s *Stage) a_kubeconfig_without_current_context() *Stage {
+	path := filepath.Join(s.tempDir, "no-current-context.yaml")
+	kubeconfig := `apiVersion: v1
+kind: Config
+contexts:
+- name: dev
+  context:
+    cluster: cluster-dev
+    user: user-dev
+clusters:
+- name: cluster-dev
+  cluster:
+    server: https://dev.example
+users:
+- name: user-dev
+  user: {}
+`
+	err := os.WriteFile(path, []byte(kubeconfig), 0o600)
+	require.NoError(s.t, err)
+	s.snippet = fmt.Sprintf(
+		`std.native('invoke:kubectl')('configCurrentContext', [{kubeconfig: %q}])`,
+		path,
+	)
+	return s
+}
+
+func (s *Stage) a_kubeconfig_with_current_context_set_to(contextName string) *Stage {
+	path := filepath.Join(s.tempDir, "current-context.yaml")
+	kubeconfig := fmt.Sprintf(`apiVersion: v1
+kind: Config
+current-context: %s
+contexts:
+- name: %s
+  context:
+    cluster: cluster-%s
+    user: user-%s
+clusters:
+- name: cluster-%s
+  cluster:
+    server: https://%s.example
+users:
+- name: user-%s
+  user: {}
+`, contextName, contextName, contextName, contextName, contextName, contextName, contextName)
+	err := os.WriteFile(path, []byte(kubeconfig), 0o600)
+	require.NoError(s.t, err)
+	s.snippet = fmt.Sprintf(
+		`std.native('invoke:kubectl')('configCurrentContext', [{kubeconfig: %q}])`,
+		path,
+	)
+	return s
+}
+
 func (s *Stage) a_missing_kubeconfig_path() *Stage {
 	path := filepath.Join(s.tempDir, "missing-config.yaml")
 	s.snippet = fmt.Sprintf(
 		`std.native('invoke:kubectl')('configGetContexts', [{kubeconfig: %q}])`,
+		path,
+	)
+	return s
+}
+
+func (s *Stage) a_missing_kubeconfig_path_for_current_context() *Stage {
+	path := filepath.Join(s.tempDir, "missing-current-context.yaml")
+	s.snippet = fmt.Sprintf(
+		`std.native('invoke:kubectl')('configCurrentContext', [{kubeconfig: %q}])`,
 		path,
 	)
 	return s
@@ -87,7 +151,22 @@ func (s *Stage) an_invalid_options_input() *Stage {
 	return s
 }
 
+func (s *Stage) an_invalid_options_input_for_current_context() *Stage {
+	s.snippet = `std.native('invoke:kubectl')('configCurrentContext', ['x'])`
+	return s
+}
+
 func (s *Stage) config_get_contexts_is_invoked() *Stage {
+	s.lastErr = jpoet.Eval(
+		jpoet.WithPlugin(s.plugin),
+		jpoet.SnippetInput("test.jsonnet", s.snippet),
+		jpoet.ValueOutput(&s.lastOutput),
+		jpoet.Serialize(false),
+	)
+	return s
+}
+
+func (s *Stage) config_current_context_is_invoked() *Stage {
 	s.lastErr = jpoet.Eval(
 		jpoet.WithPlugin(s.plugin),
 		jpoet.SnippetInput("test.jsonnet", s.snippet),
@@ -140,5 +219,12 @@ func (s *Stage) the_output_message_contains(msg string) *Stage {
 	outMsg, ok := status["message"].(string)
 	require.True(s.t, ok)
 	assert.Contains(s.t, outMsg, msg)
+	return s
+}
+
+func (s *Stage) the_output_is_the_current_context(expected string) *Stage {
+	out, ok := s.lastOutput.(string)
+	require.True(s.t, ok)
+	assert.Equal(s.t, expected, out)
 	return s
 }
