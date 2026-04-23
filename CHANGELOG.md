@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/marcbran/jsonnet-plugin-kubectl/compare/v0.1.0...v0.2.0) (2026-04-23)
+
+
+### Features
+
+* config ([#18](https://github.com/marcbran/jsonnet-plugin-kubectl/issues/18)) ([de22c2d](https://github.com/marcbran/jsonnet-plugin-kubectl/commit/de22c2dd232d32ecc0bf93c6bc0a8eceaa625ccd))
+
 ## [0.1.0](https://github.com/marcbran/jsonnet-plugin-kubectl/compare/v0.0.0...v0.1.0) (2026-04-21)
 
 
