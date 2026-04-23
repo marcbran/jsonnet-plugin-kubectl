@@ -158,10 +158,7 @@ func runGet(ctx context.Context, gi GetInput) (map[string]any, error) {
 }
 
 func restConfigFromOptions(opts GetOptions) (*rest.Config, string, error) {
-	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	if opts.Kubeconfig != "" {
-		loadingRules.ExplicitPath = opts.Kubeconfig
-	}
+	cfgLoadingRules := loadingRules(opts.Kubeconfig)
 	overrides := &clientcmd.ConfigOverrides{}
 	if opts.Context != "" {
 		overrides.CurrentContext = opts.Context
@@ -169,7 +166,7 @@ func restConfigFromOptions(opts GetOptions) (*rest.Config, string, error) {
 	if opts.Namespace != "" {
 		overrides.Context.Namespace = opts.Namespace
 	}
-	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides)
+	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(cfgLoadingRules, overrides)
 	restCfg, err := clientConfig.ClientConfig()
 	if err != nil {
 		return nil, "", err

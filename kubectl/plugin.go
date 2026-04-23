@@ -7,6 +7,8 @@ import (
 
 func Plugin() *jpoet.Plugin {
 	return jpoet.NewPlugin("kubectl", []jsonnet.NativeFunction{
+		ConfigCurrentContext(),
+		ConfigGetContexts(),
 		Get(),
 	})
 }
