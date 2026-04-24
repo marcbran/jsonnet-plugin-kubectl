@@ -69,6 +69,15 @@ func TestParseGetInput(t *testing.T) {
 			},
 		},
 		{
+			name:  "list with env",
+			input: []any{map[string]any{"env": map[string]any{"FOO": "bar", "BAZ": "qux"}}, "pods", nil},
+			want: GetInput{
+				Opts: GetOptions{Env: map[string]string{"FOO": "bar", "BAZ": "qux"}},
+				Res:  "pods",
+				Name: nil,
+			},
+		},
+		{
 			name:      "wrong arity",
 			input:     []any{map[string]any{}, "pods"},
 			wantError: "expected options, resource, and name",
