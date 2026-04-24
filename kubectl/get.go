@@ -19,6 +19,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 type GetInput struct {
@@ -30,6 +31,7 @@ type GetInput struct {
 type GetOptions struct {
 	Context       string
 	Namespace     string
+	Env           map[string]string
 	AllNamespaces bool
 	LabelSelector string
 	FieldSelector string
@@ -89,6 +91,17 @@ func parseGetInput(input []any) (GetInput, error) {
 	}
 	if s, ok := rawOpts["namespace"].(string); ok {
 		opts.Namespace = s
+	}
+	switch m := rawOpts["env"].(type) {
+	case map[string]string:
+		opts.Env = m
+	case map[string]any:
+		opts.Env = make(map[string]string, len(m))
+		for k, v := range m {
+			if s, ok := v.(string); ok {
+				opts.Env[k] = s
+			}
+		}
 	}
 	if b, ok := rawOpts["allNamespaces"].(bool); ok {
 		opts.AllNamespaces = b
@@ -158,7 +171,19 @@ func runGet(ctx context.Context, gi GetInput) (map[string]any, error) {
 }
 
 func restConfigFromOptions(opts GetOptions) (*rest.Config, string, error) {
-	cfgLoadingRules := loadingRules(opts.Kubeconfig)
+	rawCfg, err := loadingRules(opts.Kubeconfig).Load()
+	if err != nil {
+		return nil, "", err
+	}
+	contextName := opts.Context
+	if contextName == "" {
+		contextName = rawCfg.CurrentContext
+	}
+	if len(opts.Env) > 0 {
+		if err := injectExecEnv(rawCfg, contextName, opts.Env); err != nil {
+			return nil, "", err
+		}
+	}
 	overrides := &clientcmd.ConfigOverrides{}
 	if opts.Context != "" {
 		overrides.CurrentContext = opts.Context
@@ -166,7 +191,7 @@ func restConfigFromOptions(opts GetOptions) (*rest.Config, string, error) {
 	if opts.Namespace != "" {
 		overrides.Context.Namespace = opts.Namespace
 	}
-	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(cfgLoadingRules, overrides)
+	clientConfig := clientcmd.NewDefaultClientConfig(*rawCfg, overrides)
 	restCfg, err := clientConfig.ClientConfig()
 	if err != nil {
 		return nil, "", err
@@ -176,6 +201,21 @@ func restConfigFromOptions(opts GetOptions) (*rest.Config, string, error) {
 		return nil, "", err
 	}
 	return restCfg, ns, nil
+}
+
+func injectExecEnv(cfg *clientcmdapi.Config, contextName string, env map[string]string) error {
+	ctx, ok := cfg.Contexts[contextName]
+	if !ok {
+		return fmt.Errorf("context %q not found", contextName)
+	}
+	authInfo, ok := cfg.AuthInfos[ctx.AuthInfo]
+	if !ok || authInfo.Exec == nil {
+		return nil
+	}
+	for k, v := range env {
+		authInfo.Exec.Env = append(authInfo.Exec.Env, clientcmdapi.ExecEnvVar{Name: k, Value: v})
+	}
+	return nil
 }
 
 func unstructuredObjectToMap(u *unstructured.Unstructured) (map[string]any, error) {
