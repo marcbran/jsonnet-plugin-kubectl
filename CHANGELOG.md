@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/marcbran/jsonnet-plugin-kubectl/compare/v0.2.0...v0.3.0) (2026-04-25)
+
+
+### Features
+
+* allow injection of env for get ([#22](https://github.com/marcbran/jsonnet-plugin-kubectl/issues/22)) ([4b7db4c](https://github.com/marcbran/jsonnet-plugin-kubectl/commit/4b7db4c04a40622c8cd9454e8227052a75bf814e))
+* api resources ([#23](https://github.com/marcbran/jsonnet-plugin-kubectl/issues/23)) ([80dd92f](https://github.com/marcbran/jsonnet-plugin-kubectl/commit/80dd92f0293bba179ffdefa3c99bf8081e862230))
+
 ## [0.2.0](https://github.com/marcbran/jsonnet-plugin-kubectl/compare/v0.1.0...v0.2.0) (2026-04-23)
 
 
