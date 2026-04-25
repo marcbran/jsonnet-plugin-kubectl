@@ -12,7 +12,7 @@ func EnvByContext(envFor func(context string) map[string]string) jpoet.Middlewar
 }
 
 func injectEnvIntoArgs(funcName string, args []any, env map[string]string) []any {
-	if funcName != "get" || len(args) == 0 || len(env) == 0 {
+	if (funcName != "get" && funcName != "apiResources") || len(args) == 0 || len(env) == 0 {
 		return args
 	}
 	opts, _ := args[0].(map[string]any)
