@@ -27,7 +27,7 @@ func TestParseGetInput(t *testing.T) {
 			name:  "get with context and namespace",
 			input: []any{map[string]any{"context": "prod", "namespace": "ns1"}, "pods", "p1"},
 			want: GetInput{
-				Opts: GetOptions{Context: "prod", Namespace: "ns1"},
+				Opts: GetOptions{RestOptions: RestOptions{Context: "prod", Namespace: "ns1"}},
 				Res:  "pods",
 				Name: strPtr("p1"),
 			},
@@ -36,7 +36,7 @@ func TestParseGetInput(t *testing.T) {
 			name:  "list with allNamespaces",
 			input: []any{map[string]any{"context": "prod", "allNamespaces": true}, "deployments", nil},
 			want: GetInput{
-				Opts: GetOptions{Context: "prod", AllNamespaces: true},
+				Opts: GetOptions{RestOptions: RestOptions{Context: "prod"}, AllNamespaces: true},
 				Res:  "deployments",
 				Name: nil,
 			},
@@ -63,7 +63,7 @@ func TestParseGetInput(t *testing.T) {
 			name:  "list with kubeconfig",
 			input: []any{map[string]any{"kubeconfig": "/home/user/.kube/config"}, "pods", nil},
 			want: GetInput{
-				Opts: GetOptions{Kubeconfig: "/home/user/.kube/config"},
+				Opts: GetOptions{RestOptions: RestOptions{Kubeconfig: "/home/user/.kube/config"}},
 				Res:  "pods",
 				Name: nil,
 			},
@@ -72,7 +72,7 @@ func TestParseGetInput(t *testing.T) {
 			name:  "list with env",
 			input: []any{map[string]any{"env": map[string]any{"FOO": "bar", "BAZ": "qux"}}, "pods", nil},
 			want: GetInput{
-				Opts: GetOptions{Env: map[string]string{"FOO": "bar", "BAZ": "qux"}},
+				Opts: GetOptions{RestOptions: RestOptions{Env: map[string]string{"FOO": "bar", "BAZ": "qux"}}},
 				Res:  "pods",
 				Name: nil,
 			},

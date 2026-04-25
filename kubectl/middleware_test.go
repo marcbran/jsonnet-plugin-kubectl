@@ -63,6 +63,13 @@ func TestInjectEnvIntoArgs(t *testing.T) {
 			env:      map[string]string{"TOKEN": "secret"},
 			want:     []any{map[string]any{"context": "dev", "env": map[string]string{"TOKEN": "secret"}}, "nodes", "my-node"},
 		},
+		{
+			name:     "env is injected into apiResources options",
+			funcName: "apiResources",
+			args:     []any{map[string]any{"context": "prod"}},
+			env:      map[string]string{"FOO": "bar"},
+			want:     []any{map[string]any{"context": "prod", "env": map[string]string{"FOO": "bar"}}},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
