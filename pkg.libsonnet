@@ -3,8 +3,8 @@ local p = import 'pkg/main.libsonnet';
 p.pkg({
   source: 'https://github.com/marcbran/jsonnet-plugin-kubectl',
   repo: 'https://github.com/marcbran/jsonnet.git',
-  branch: 'kubectl',
-  path: 'kubectl',
+  branch: 'plugin-kubectl',
+  path: 'plugin/kubectl',
   target: 'kubectl',
 }, |||
   Read-only access to Kubernetes resources via client-go, similar to `kubectl get`.
