@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/marcbran/jsonnet-plugin-kubectl/compare/v0.3.0...v0.4.0) (2026-09-09)
+
+
+### Features
+
+* plugin with options pattern ([#58](https://github.com/marcbran/jsonnet-plugin-kubectl/issues/58)) ([4a757ee](https://github.com/marcbran/jsonnet-plugin-kubectl/commit/4a757ee9ab03c5fb12811cdc0ba0cb00e6a27897))
+
 ## [0.3.0](https://github.com/marcbran/jsonnet-plugin-kubectl/compare/v0.2.0...v0.3.0) (2026-04-25)
 
 
