@@ -5,11 +5,11 @@ import (
 	"github.com/marcbran/jpoet/pkg/jpoet"
 )
 
-func Plugin() *jpoet.Plugin {
+func Plugin(opts ...jpoet.PluginOption) *jpoet.Plugin {
 	return jpoet.NewPlugin("kubectl", []jsonnet.NativeFunction{
 		ConfigCurrentContext(),
 		ConfigGetContexts(),
 		ApiResources(),
 		Get(),
-	})
+	}, opts...)
 }
