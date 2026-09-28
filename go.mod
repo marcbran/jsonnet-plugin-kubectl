@@ -6,7 +6,7 @@ require (
 	github.com/google/go-jsonnet v0.22.0
 	github.com/marcbran/jpoet v0.23.1
 	github.com/stretchr/testify v1.12.1
-	k8s.io/apimachinery v0.37.0
+	k8s.io/apimachinery v0.37.1
 	k8s.io/client-go v0.37.0
 )
 
